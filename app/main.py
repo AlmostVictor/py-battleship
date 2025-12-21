@@ -1,14 +1,16 @@
+from collections import Counter
+
+
 class Deck:
-    def __init__(self, row: int, column: int, is_alive: bool=True) -> None:
+    def __init__(self, row: int, column: int, is_alive: bool = True) -> None:
         self.row = row
         self.column = column
         self.is_alive = is_alive
 
 
 class Ship:
-    def __init__(self, start: tuple, end: tuple, is_drowned: bool=False) -> None:
-        self.start = start
-        self.end = end
+    def __init__(self, start: tuple, end: tuple,
+                 is_drowned: bool = False) -> None:
         self.is_drowned = is_drowned
         if start[0] == end[0]:
             self.decks = [Deck(start[0], y_coord) for y_coord
@@ -36,11 +38,13 @@ class Battleship:
     def __init__(self, ships: list[tuple[
         tuple[int, int], tuple[int, int]
     ]]) -> None:
+        self.fleet = []
         self.field = {}
         for coords in ships:
             ship = Ship(coords[0], coords[1])
+            self.fleet.append(ship)
             for deck in ship.decks:
-                self.field[deck] = ship
+                self.field[(deck.row, deck.column)] = ship
 
     def fire(self, location: tuple[int, int]) -> str:
         if location not in self.field.keys():
@@ -51,3 +55,24 @@ class Battleship:
         if cell.is_drowned:
             return "Sunk!"
         return "Hit!"
+
+    def print_field(self) -> None:
+        table = [["~" * 10] * 10]
+        for cell, ship in self.field.items():
+            if ship.is_drowned:
+                table[cell[0]][cell[1]] = "X"
+            elif not ship.get_deck(cell[0], cell[1]).is_alive:
+                table[cell[0]][cell[1]] = "*"
+            else:
+                table[cell[0]][cell[1]] = u"\u25A1"
+        print(f"{"\t".join(row)}\n" for row in table)
+
+    def _validate_field(self) -> bool:
+        sizes = Counter([len(ship.decks) for ship in self.fleet])
+        return all(
+            sizes.most_common(1)[0][1] == 4,
+            sizes[1] == 4,
+            sizes[2] == 3,
+            sizes[3] == 2,
+            sizes[4] == 1
+        )
