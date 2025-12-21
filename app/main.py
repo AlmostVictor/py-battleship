@@ -77,11 +77,9 @@ class Battleship:
                          if coords != (0, 0)]
         for cell in self.field:
             for change in displacements:
-                deck = self.field.get(
-                    (cell[0] + change[0],
-                     cell[1] + change[1])
-                )
-                if deck and self.field[deck] != self.field[cell]:
+                deck = (cell[0] + change[0],
+                        cell[1] + change[1])
+                if self.field.get(deck) and self.field[deck] != self.field[cell]:
                     return False
 
         sizes = Counter([len(ship.decks) for ship in self.fleet])
