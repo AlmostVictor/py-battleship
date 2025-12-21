@@ -46,6 +46,8 @@ class Battleship:
             for deck in ship.decks:
                 self.field[(deck.row, deck.column)] = ship
 
+        self._validate_field()
+
     def fire(self, location: tuple[int, int]) -> str:
         if location not in self.field.keys():
             return "Miss!"
@@ -57,20 +59,19 @@ class Battleship:
         return "Hit!"
 
     def print_field(self) -> None:
-        table = [["~" * 10] * 10]
+        table = [["~" for _ in range(10)] for _ in range(10)]
         for cell, ship in self.field.items():
             if ship.is_drowned:
-                table[cell[0]][cell[1]] = "X"
+                table[cell[0]][cell[1]] = "x"
             elif not ship.get_deck(cell[0], cell[1]).is_alive:
                 table[cell[0]][cell[1]] = "*"
             else:
                 table[cell[0]][cell[1]] = u"\u25A1"
-        print(f"{"\t".join(row)}\n" for row in table)
+        print(f"{'\t'.join(row)}\n" for row in table)
 
     def _validate_field(self) -> bool:
         sizes = Counter([len(ship.decks) for ship in self.fleet])
         return all(
-            sizes.most_common(1)[0][1] == 4,
             sizes[1] == 4,
             sizes[2] == 3,
             sizes[3] == 2,
