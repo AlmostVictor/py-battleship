@@ -1,4 +1,5 @@
 from collections import Counter
+from itertools import product
 
 
 class Deck:
@@ -70,10 +71,19 @@ class Battleship:
         print(f"{'\t'.join(row)}\n" for row in table)
 
     def _validate_field(self) -> bool:
+        displacements = [coords for coords in product([-1, 0, 1], repeat=2)
+                         if coords != (0, 0)]
+        for cell in self.field:
+            for change in displacements:
+                if self.field[cell[0] + change[0],
+                              cell[1] + change[1]] in self.field:
+                    return False
+
         sizes = Counter([len(ship.decks) for ship in self.fleet])
         return all(
-            sizes[1] == 4,
-            sizes[2] == 3,
-            sizes[3] == 2,
-            sizes[4] == 1
+            [len(self.fleet) == 10,
+             sizes[1] == 4,
+             sizes[2] == 3,
+             sizes[3] == 2,
+             sizes[4] == 1]
         )
