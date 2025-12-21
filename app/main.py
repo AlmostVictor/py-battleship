@@ -68,15 +68,20 @@ class Battleship:
                 table[cell[0]][cell[1]] = "*"
             else:
                 table[cell[0]][cell[1]] = u"\u25A1"
-        print(f"{'\t'.join(row)}\n" for row in table)
+
+        for row in table:
+            print(f"{'\t'.join(row)}")
 
     def _validate_field(self) -> bool:
         displacements = [coords for coords in product([-1, 0, 1], repeat=2)
                          if coords != (0, 0)]
         for cell in self.field:
             for change in displacements:
-                if self.field[cell[0] + change[0],
-                              cell[1] + change[1]] in self.field:
+                deck = self.field.get(
+                    (cell[0] + change[0],
+                     cell[1] + change[1])
+                )
+                if deck and self.field[deck] != self.field[cell]:
                     return False
 
         sizes = Counter([len(ship.decks) for ship in self.fleet])
