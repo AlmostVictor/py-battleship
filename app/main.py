@@ -41,8 +41,8 @@ class Battleship:
     ]]) -> None:
         self.fleet = []
         self.field = {}
-        for coords in ships:
-            ship = Ship(coords[0], coords[1])
+        for start, end in ships:
+            ship = Ship(start, end)
             self.fleet.append(ship)
             for deck in ship.decks:
                 self.field[(deck.row, deck.column)] = ship
@@ -61,33 +61,36 @@ class Battleship:
 
     def print_field(self) -> None:
         table = [["~" for _ in range(10)] for _ in range(10)]
-        for cell, ship in self.field.items():
+        for cell_x, cell_y, ship in self.field.items():
             if ship.is_drowned:
-                table[cell[0]][cell[1]] = "x"
-            elif not ship.get_deck(cell[0], cell[1]).is_alive:
-                table[cell[0]][cell[1]] = "*"
+                table[cell_x][cell_y] = "x"
+            elif not ship.get_deck(cell_x, cell_y).is_alive:
+                table[cell_x][cell_y] = "*"
             else:
-                table[cell[0]][cell[1]] = u"\u25A1"
+                table[cell_x][cell_y] = u"\u25A1"
 
         for row in table:
             print(f"{'\t'.join(row)}")
 
-    def _validate_field(self) -> bool:
+    def _validate_field(self) -> None:
         displacements = [coords for coords in product([-1, 0, 1], repeat=2)
                          if coords != (0, 0)]
-        for cell in self.field:
-            for change in displacements:
-                deck = (cell[0] + change[0],
-                        cell[1] + change[1])
-                if self.field.get(deck)\
-                        and self.field[deck] != self.field[cell]:
-                    return False
+        for cell_x, cell_y, ship in self.field.items():
+            for change_x, change_y in displacements:
+                deck = (cell_x + change_x,
+                        cell_y + change_y)
+                if self.field.get(deck) and self.field[deck] != ship:
+                    raise ValueError(
+                        f"Cell ({cell_x}, {cell_y}) is adjacent "
+                        f"to existed deck {deck}"
+                    )
 
-        sizes = Counter([len(ship.decks) for ship in self.fleet])
-        return all(
-            [len(self.fleet) == 10,
-             sizes[1] == 4,
-             sizes[2] == 3,
-             sizes[3] == 2,
-             sizes[4] == 1]
-        )
+        if len(self.fleet) != 10:
+            raise ValueError("Ships count should be 10")
+
+        sizes = Counter([len(ship.decks) for ship in self.field])
+        ships_count = {1: 4, 2: 3, 3: 2, 4: 1}
+        for decks, ships in ships_count.items():
+            if sizes[decks] != ships:
+                raise ValueError(f"Count of {decks}-deck ships "
+                                 f"should be {ships}")
