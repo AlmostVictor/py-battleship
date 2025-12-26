@@ -75,11 +75,12 @@ class Battleship:
     def _validate_field(self) -> None:
         displacements = [coords for coords in product([-1, 0, 1], repeat=2)
                          if coords != (0, 0)]
-        for cell_x, cell_y, ship in self.field.items():
+        for cell_x, cell_y in self.field:
             for change_x, change_y in displacements:
                 deck = (cell_x + change_x,
                         cell_y + change_y)
-                if self.field.get(deck) and self.field[deck] != ship:
+                if self.field.get(deck) and self.field[deck] !=\
+                        self.field[(cell_x, cell_y)]:
                     raise ValueError(
                         f"Cell ({cell_x}, {cell_y}) is adjacent "
                         f"to existed deck {deck}"
@@ -88,7 +89,7 @@ class Battleship:
         if len(self.fleet) != 10:
             raise ValueError("Ships count should be 10")
 
-        sizes = Counter([len(ship.decks) for ship in self.field])
+        sizes = Counter([len(ship.decks) for ship in self.fleet])
         ships_count = {1: 4, 2: 3, 3: 2, 4: 1}
         for decks, ships in ships_count.items():
             if sizes[decks] != ships:
