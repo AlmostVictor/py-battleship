@@ -73,8 +73,8 @@ class Battleship:
             print(f"{'\t'.join(row)}")
 
     def _validate_field(self) -> None:
-        displacements = [coords for coords in product([-1, 0, 1], repeat=2)
-                         if coords != (0, 0)]
+        displacements = [coords for coords in product([-1, 0, 1], repeat=2)]
+        displacements.remove((0, 0))
         for cell_x, cell_y in self.field:
             for change_x, change_y in displacements:
                 deck = (cell_x + change_x,
