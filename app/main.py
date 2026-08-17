@@ -79,8 +79,9 @@ class Battleship:
             for change_x, change_y in displacements:
                 deck = (cell_x + change_x,
                         cell_y + change_y)
-                if self.field.get(deck) and self.field[deck] !=\
-                        self.field[(cell_x, cell_y)]:
+                if self.field.get(deck) not in (
+                    None, self.field[(cell_x, cell_y)]
+                ):
                     raise ValueError(
                         f"Cell ({cell_x}, {cell_y}) is adjacent "
                         f"to existed deck {deck}"
